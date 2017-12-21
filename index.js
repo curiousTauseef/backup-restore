@@ -26,8 +26,9 @@ class Service {
 			let current_backups = await this.store.getBackupList();
 			debug(`There are ${current_backups.length} out of max ${this.max_backups}`)
 			const to_purge = current_backups.length - this.max_backups;
-			debug(`Purging ${to_purge} backups`);
 			if ( current_backups.length > this.max_backups) {
+				debug(`Purging ${to_purge} backups`);
+			
 				for ( let i = 0; i < to_purge; i++ ) {
 					await this.store.purgeBackup(current_backups[i]);
 				}
