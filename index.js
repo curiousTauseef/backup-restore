@@ -20,7 +20,7 @@ class Service {
 		} catch(err) {
 			debug(`Error making backup, this must be reported`);
 			debug(err);
-			await this.reporter.send({
+			await this.reporter.sendError({
 				error:err,
 				step: 'Taking backup from source'
 			})
@@ -34,7 +34,7 @@ class Service {
 		} catch(err) {
 			debug(`Error storing backup, this must be reported`);
 			debug(err);
-			await this.reporter.send({
+			await this.reporter.sendError({
 				error:err,
 				step: 'Storing backup to backup location'
 			})
@@ -64,7 +64,7 @@ class Service {
 		} catch(err) {
 			debug(`Error purging old backups, this must be reported`);
 			debug(err);
-			await this.reporter.send({
+			await this.reporter.sendError({
 				error:err,
 				step: 'Purging backups'
 			})
@@ -88,7 +88,11 @@ class Service {
 		
 		const after_purge = await this.check_disks();
 		await this.reporter.send({
-			disk: [before, after_backup, after_purge],
+			disk: {
+				before: before,
+				store: after_backup,
+				after: after_purge
+			},
 			purged: purged,
 			backed_up: backup
 		})

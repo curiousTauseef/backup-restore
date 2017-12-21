@@ -1,55 +1,57 @@
 doctype html
 html
   head
-   
    style(type='text/css').
-   	.alert {
-   		color:green
-   	}
+     .alert {
+       color:green
+     }
     
   body
-     h2.alert Backup of #{process.env.BACKUP_INSTANCE_NAME} was successful.
-     
-     table
-     	thead
-     		tr
-     			th Time
-     			th Backup Location
-     			th Backup size
-     	tbody
-     		tr
-     			td #{backup.time}
-     			td #{backup.file}
-     			td #{backup.size}
+    h2.alert Backup of #{process.env.BACKUP_INSTANCE_NAME} was successful.
+    table
+       thead
+         tr
+            th Time
+            th Backup Location
+            th Backup size
+       tbody
+         tr
+            td #{backed_up.time}
+            td #{backed_up.file}
+            td #{backed_up.size}
 
-     if backup.purged.length
-     	h3 #{backup.purged.length} old backups purged
+    if purged.length
+        h3 #{purged.length} old backups purged
 
-     	table
-	     	thead
-	     		tr
-	     			th Time
-	     			th Backup Location
-	     			th Backup size
-	     	tbody
-	     		each p in backup.purged
-		     		tr
-		     			td #{p.time}
-		     			td #{p.file}
-		     			td #{p.size}
-	
-	each disk in backup[0]
-
-		h3 File system status - 
-			table
-		     	thead
-		     		tr
-		     			th 
-		     			th Backup start
-		     			th After backup taken
-		     			th After backup stored and old purged
-		     	tbody
-		     		each attr in ['mountpoint', 'drive', 'available', 'used', 'usedPer']
-		     			tr
-		     				td #{attr}
-		     				td #{disk[attr]}
+        table
+            thead
+                tr
+                    th Time
+                    th Backup Location
+                    th Backup size
+            tbody
+                each p in purged
+                    tr
+                        td #{p.time}
+                        td #{p.file}
+                        td #{p.size}
+    each obj, d in disk.before
+        h3 File system status - Disk #{d}
+        table
+              thead
+                tr
+                    th 
+                    th Backup start
+                    th During backup
+                    th Backup completed
+              //-tbody
+                    each attr in ['mountpoint', 'drive', 'available', 'used', 'usedPer']
+                        tr
+                            td #{attr}
+                            td #{disk.before[d][attr]}
+                        tr
+                            td #{attr}
+                            td #{disk.store[d][attr]}
+                        tr
+                            td #{attr}
+                            td #{disk.after[d][attr]}
