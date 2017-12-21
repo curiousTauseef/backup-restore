@@ -12,33 +12,87 @@ class Service {
 		this.max_backups = process.env.BACKUP_MAX_ARCHIVES | 1
 	}
 
-
-	async start() {
-		debug(`Backup service started`);
-
+	async take_backup() {
 		try {
-			const before = await this.check_disks();
-			const archive = await this.source.archive();
-			const after_archive = await this.check_disks();
-			await this.store.addBackup(archive);
+			const backup = await this.source.archive();
+			return backup;
+		} catch(err) {
+			debug(`Error making backup, this must be reported`);
+			debug(err);
+			await this.reporter.send({
+				error:err,
+				step: 'Taking backup from source'
+			})
+			return undefined;
+		}
+	}
+	async store_backup(backup){
+		try {
+			await this.store.addBackup(backup);
+			return true;
+		} catch(err) {
+			debug(`Error storing backup, this must be reported`);
+			debug(err);
+			await this.reporter.send({
+				error:err,
+				step: 'Storing backup to backup location'
+			})
+			return false;
+		}
 
+	}
+
+	async purge_old () {
+		try {
 			// Now check if we should purge anything
 			let current_backups = await this.store.getBackupList();
 			debug(`There are ${current_backups.length} out of max ${this.max_backups}`)
 			const to_purge = current_backups.length - this.max_backups;
+			const purged = [];
 			if ( current_backups.length > this.max_backups) {
 				debug(`Purging ${to_purge} backups`);
 			
 				for ( let i = 0; i < to_purge; i++ ) {
 					await this.store.purgeBackup(current_backups[i]);
+					purged.push(current_backups[i]);
 				}
 			}
 
-			const after_store = await this.check_disks();
+			return purged;
+
 		} catch(err) {
-			debug(`Error archiving, this must be reported`);
+			debug(`Error purging old backups, this must be reported`);
 			debug(err);
+			await this.reporter.send({
+				error:err,
+				step: 'Purging backups'
+			})
+			return false;
 		}
+	}
+	async start() {
+		debug(`Backup service started`);
+		
+		const before = await this.check_disks();
+		const backup = this.take_backup();
+		if ( !backup ) return false;
+
+
+		const after_backup = await this.check_disks();
+		const stored = await this.store_backup(backup);
+		if (!stored) return false;
+
+		const purged = this.purge_old();
+		if ( purged === false ) return false;
+		
+		const after_purge = await this.check_disks();
+		await this.reporter.send({
+			disk: [before, after_backup, after_purge],
+			purged: purged,
+			backed_up: backup
+		})
+
+		return true;
 	}
 
 	async check_disks() {
