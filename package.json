@@ -26,6 +26,8 @@
     "dotenv": "4.0.0",
     "moment": "2.20.1",
     "nodejs-disks": "0.2.1",
+    "nodemailer": "4.4.1",
+    "pug": "2.0.0-rc.4",
     "supports-color": "5.1.0"
   }
 }

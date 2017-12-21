@@ -1,0 +1,55 @@
+doctype html
+html
+  head
+   
+   style(type='text/css').
+   	.alert {
+   		color:green
+   	}
+    
+  body
+     h2.alert Backup of #{process.env.BACKUP_INSTANCE_NAME} was successful.
+     
+     table
+     	thead
+     		tr
+     			th Time
+     			th Backup Location
+     			th Backup size
+     	tbody
+     		tr
+     			td #{backup.time}
+     			td #{backup.file}
+     			td #{backup.size}
+
+     if backup.purged.length
+     	h3 #{backup.purged.length} old backups purged
+
+     	table
+	     	thead
+	     		tr
+	     			th Time
+	     			th Backup Location
+	     			th Backup size
+	     	tbody
+	     		each p in backup.purged
+		     		tr
+		     			td #{p.time}
+		     			td #{p.file}
+		     			td #{p.size}
+	
+	each disk in backup[0]
+
+		h3 File system status - 
+			table
+		     	thead
+		     		tr
+		     			th 
+		     			th Backup start
+		     			th After backup taken
+		     			th After backup stored and old purged
+		     	tbody
+		     		each attr in ['mountpoint', 'drive', 'available', 'used', 'usedPer']
+		     			tr
+		     				td #{attr}
+		     				td #{disk[attr]}
