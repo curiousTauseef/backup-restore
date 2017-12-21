@@ -1,0 +1,24 @@
+{
+  "name": "backup-restore",
+  "version": "1.0.0",
+  "description": "Scheduled backup of database and restoring capabilities.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freezer333/backup-restore.git"
+  },
+  "keywords": [
+    "database",
+    "backup",
+    "restore"
+  ],
+  "author": "Scott Frees",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/freezer333/backup-restore/issues"
+  },
+  "homepage": "https://github.com/freezer333/backup-restore#readme"
+}
