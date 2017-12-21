@@ -58,3 +58,4 @@ typings/
 .env
 
 examples/*.gz
+examples/backups.json
