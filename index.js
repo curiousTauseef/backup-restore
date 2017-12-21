@@ -1,14 +1,15 @@
 exports.LocalStore = require('./lib/stores/local');
 exports.MongoSource = require('./lib/sources/mongo');
-
+exports.EmailReporter = require('./lib/reporters/email');
 
 const debug = require('debug')('backup');
 const njds = require('nodejs-disks');
 
 class Service {
-	constructor(source, store) {
+	constructor(source, store, reporter) {
 		this.source = new source();
 		this.store = new store();
+		this.reporter = new reporter();
 		this.max_backups = process.env.BACKUP_MAX_ARCHIVES | 1
 	}
 
@@ -74,7 +75,7 @@ class Service {
 		debug(`Backup service started`);
 		
 		const before = await this.check_disks();
-		const backup = this.take_backup();
+		const backup = await this.take_backup();
 		if ( !backup ) return false;
 
 
@@ -82,7 +83,7 @@ class Service {
 		const stored = await this.store_backup(backup);
 		if (!stored) return false;
 
-		const purged = this.purge_old();
+		const purged = await this.purge_old();
 		if ( purged === false ) return false;
 		
 		const after_purge = await this.check_disks();
