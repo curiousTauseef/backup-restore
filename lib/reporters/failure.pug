@@ -1,0 +1,19 @@
+doctype html
+html
+  head
+   style(type='text/css').
+     .alert {
+       color:red
+     }
+    
+  body
+    h2.alert Backup of #{process.env.BACKUP_INSTANCE_NAME} Failed.
+    p.alert Please log into server immediately for logs.
+    
+    p
+      | Error occured at step:
+      span.alert #{step}
+    
+    pre #{error}
+
+    

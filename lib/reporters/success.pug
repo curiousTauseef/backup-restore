@@ -5,9 +5,19 @@ html
      .alert {
        color:green
      }
+     table {
+      width:100%;
+
+     }
+     th {
+      text-align:left;
+     }
+     td {
+      font-family: "Lucida Console", Monaco, monospace
+     }
     
   body
-    h2.alert Backup of #{process.env.BACKUP_INSTANCE_NAME} was successful.
+    h1.alert Backup of #{process.env.BACKUP_INSTANCE_NAME} was successful.
     table
        thead
          tr
@@ -21,8 +31,8 @@ html
             td #{backed_up.size}
 
     if purged.length
-        h3 #{purged.length} old backups purged
-
+        h1 Purged Backup(s)
+        p #{purged.length} old backups purged.
         table
             thead
                 tr
@@ -35,8 +45,9 @@ html
                         td #{p.time}
                         td #{p.file}
                         td #{p.size}
+    h1 File system status
     each obj, d in disk.before
-        h3 File system status - Disk #{d}
+        h2 Disk #{d}
         table
             thead
                 tr
