@@ -38,20 +38,16 @@ html
     each obj, d in disk.before
         h3 File system status - Disk #{d}
         table
-              thead
+            thead
                 tr
                     th 
                     th Backup start
                     th During backup
                     th Backup completed
-              //-tbody
-                    each attr in ['mountpoint', 'drive', 'available', 'used', 'usedPer']
-                        tr
-                            td #{attr}
-                            td #{disk.before[d][attr]}
-                        tr
-                            td #{attr}
-                            td #{disk.store[d][attr]}
-                        tr
-                            td #{attr}
-                            td #{disk.after[d][attr]}
+            tbody
+                each attr in ['mountpoint', 'drive', 'available', 'used', 'usedPer']
+                    tr
+                        td #{attr}
+                        td #{disk.before[d][attr]}
+                        td #{disk.store[d][attr]}
+                        td #{disk.after[d][attr]}
