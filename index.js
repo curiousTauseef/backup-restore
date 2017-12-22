@@ -21,9 +21,9 @@ class Service {
         this.cron = process.env.BACKUP_SCHEDULE;
 
         if ( !this.store.initialize ) 
-            this.store.initialize = () => {};
+            this.store.initialize =  async () => { return true;};
         if ( !this.store.cleanup ) 
-            this.store.cleanup = () => {};
+            this.store.cleanup = async () => {return true};
     }
 
     async take_backup() {
@@ -111,14 +111,20 @@ class Service {
     }
 
     async do_backup() {
-        this.store.initialize();
+        if (!this.store.initialize() ) {
+            await this.reporter.sendError({
+                error: new Error(`Store could not be initialized`),
+                step: 'Initializing backup store'
+            })
+            return false
+        }
 
         logger.verbose(`Taking backup from data source`);
         const before = await this.check_disks();
         const backup = await this.take_backup();
         if (!backup) {
             logger.error(` x Backup failed while taking backup from data source.`);
-            this.store.initialize();
+            this.store.cleanup();
             return false;
         }
 
@@ -127,6 +133,7 @@ class Service {
         const stored = await this.store_backup(backup);
         if (!stored) {
             logger.error(` x Backup failed while storing backup on archive store`);
+            this.store.cleanup();
             return false;
         }
 
@@ -134,6 +141,7 @@ class Service {
         const purged = await this.purge_old();
         if (purged === false) {
             logger.error(` x Backup failed while purging older backups`);
+            this.store.cleanup();
             return false;
         }
 
@@ -147,7 +155,7 @@ class Service {
             purged: purged,
             backed_up: backup
         });
-
+        this.store.cleanup();
 
         return true;
     }
