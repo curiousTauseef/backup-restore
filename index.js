@@ -70,6 +70,7 @@ class Service {
 
                 for (let i = 0; i < to_purge; i++) {
                     await this.store.purgeBackup(current_backups[i]);
+                    logger.verbose(` ---- Purged backup taken at ${current_backups[i].time}`);
                     purged.push(current_backups[i]);
                 }
             }
@@ -98,7 +99,7 @@ class Service {
                 logger.info(` - Backup successful.`);
                 debug(`Backup successful`);
             } else {
-                logger.err(` x Backup has failed.`);
+                logger.error(` x Backup has failed.`);
                 debug(`Backup failed!`);
             }
         });
