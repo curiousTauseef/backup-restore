@@ -19,6 +19,11 @@ class Service {
         this.instance = process.env.BACKUP_INSTANCE_NAME
         this.max_backups = process.env.BACKUP_MAX_ARCHIVES | 1;
         this.cron = process.env.BACKUP_SCHEDULE;
+
+        if ( !this.store.initialize ) 
+            this.store.initialize = () => {};
+        if ( !this.store.cleanup ) 
+            this.store.cleanup = () => {};
     }
 
     async take_backup() {
@@ -85,8 +90,9 @@ class Service {
 
         logger.info(`Backup service for ${this.instance} schedule started [${this.cron}]`);
         const self = this;
-        this.service = schedule.scheduleJob(this.cron, function() {
-            if (self.do_backup()) {
+        this.service = schedule.scheduleJob(this.cron, async function() {
+            const result = await self.do_backup();
+            if (result) {
                 logger.info(` - Backup successful.`);
                 debug(`Backup successful`);
             } else {
@@ -105,11 +111,14 @@ class Service {
     }
 
     async do_backup() {
+        this.store.initialize();
+
         logger.verbose(`Taking backup from data source`);
         const before = await this.check_disks();
         const backup = await this.take_backup();
         if (!backup) {
             logger.error(` x Backup failed while taking backup from data source.`);
+            this.store.initialize();
             return false;
         }
 
@@ -137,7 +146,8 @@ class Service {
             },
             purged: purged,
             backed_up: backup
-        })
+        });
+
 
         return true;
     }
