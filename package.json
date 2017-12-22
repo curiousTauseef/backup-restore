@@ -28,7 +28,9 @@
     "node-schedule": "^1.2.5",
     "nodejs-disks": "0.2.1",
     "nodemailer": "4.4.1",
+    "ovh": "^2.0.1",
     "pug": "2.0.0-rc.4",
+    "request": "^2.83.0",
     "supports-color": "5.1.0",
     "winston": "^2.4.0"
   }

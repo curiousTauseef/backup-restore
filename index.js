@@ -1,4 +1,5 @@
 exports.LocalStore = require('./lib/stores/local');
+exports.OVHStore = require('./lib/stores/ovh');
 exports.MongoSource = require('./lib/sources/mongo');
 exports.EmailReporter = require('./lib/reporters/email');
 
@@ -20,10 +21,10 @@ class Service {
         this.max_backups = process.env.BACKUP_MAX_ARCHIVES | 1;
         this.cron = process.env.BACKUP_SCHEDULE;
 
-        if ( !this.store.initialize ) 
-            this.store.initialize =  async () => { return true;};
-        if ( !this.store.cleanup ) 
-            this.store.cleanup = async () => {return true};
+        if (!this.store.initialize)
+            this.store.initialize = async() => { return true; };
+        if (!this.store.cleanup)
+            this.store.cleanup = async() => { return true };
     }
 
     async take_backup() {
@@ -41,19 +42,20 @@ class Service {
         }
     }
     async store_backup(backup) {
+
         try {
             await this.store.addBackup(backup);
             return true;
         } catch (err) {
-            debug(`Error storing backup, this must be reported`);
+            debug(`Error storing backup`);
             debug(err);
             await this.reporter.sendError({
                 error: err,
                 step: 'Storing backup to backup location'
             })
             return false;
-        }
 
+        }
     }
 
     async purge_old() {
@@ -111,7 +113,8 @@ class Service {
     }
 
     async do_backup() {
-        if (!this.store.initialize() ) {
+        const inited = await this.store.initialize();
+        if (!inited) {
             await this.reporter.sendError({
                 error: new Error(`Store could not be initialized`),
                 step: 'Initializing backup store'
