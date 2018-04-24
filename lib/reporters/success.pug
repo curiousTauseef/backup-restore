@@ -29,6 +29,10 @@ html
             td #{backed_up.time}
             td #{backed_up.file}
             td #{backed_up.size}
+         if backed_up.remote_url
+            tr
+                td(colspan='3')
+                    p Remote backup location #{backed_up.remote_url}
 
     if purged.length
         h1 Purged Backup(s)
