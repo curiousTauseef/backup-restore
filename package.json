@@ -1,6 +1,6 @@
 {
   "name": "backup-restore",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Scheduled backup of database and restoring capabilities.",
   "main": "index.js",
   "scripts": {

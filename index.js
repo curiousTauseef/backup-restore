@@ -22,11 +22,23 @@ class Service {
         this.cron = process.env.BACKUP_SCHEDULE;
 
         if (!this.store.initialize)
-            this.store.initialize = async() => { return true; };
+            this.store.initialize = async () => {
+                return true;
+            };
         if (!this.store.cleanup)
-            this.store.cleanup = async() => { return true };
+            this.store.cleanup = async () => {
+                return true
+            };
     }
 
+    async download_backup(backup) {
+        await this.store._download_backup(backup);
+    }
+    async get_backup_list() {
+        const inited = await this.store.initialize();
+        let current_backups = await this.store.getBackupList();
+        return current_backups;
+    }
     async take_backup() {
         try {
             const backup = await this.source.archive();
@@ -93,7 +105,7 @@ class Service {
 
         logger.info(`Backup service for ${this.instance} schedule started [${this.cron}]`);
         const self = this;
-        this.service = schedule.scheduleJob(this.cron, async function() {
+        this.service = schedule.scheduleJob(this.cron, async function () {
             const result = await self.do_backup();
             if (result) {
                 logger.info(` - Backup successful.`);
